@@ -1,5 +1,5 @@
 import { UserRegModel } from "./../Registration/user.model";
-import { initiatePayment } from "./payment.utils";
+
 import { startSession, ObjectId } from "mongoose";
 import mongoose from "mongoose";
 
@@ -109,36 +109,51 @@ const getAllBookingsFromDB = async () => {
   console.log("this is ", io);
 
   const result = await BookingModel.find({ isBooked: "confirmed" })
-    .populate("user")
-    .populate("facility");
+  .populate("user")
+  .populate({
+    path: "facility",
+    match: { isDeleted: false }, // Only populate facilities that are not deleted
+  });
 
-  if (!result) {
-    throw new Error("No data Found");
+  const filteredResult = result.filter(booking => booking.facility !== null);
+
+  if (!filteredResult ) {
+    throw new Error("No data found");
   }
-  return result;
-};
+  
 
+return filteredResult;
+
+}
 const findBookingsByUserId = async (userId: string) => {
   console.log("this is id", userId);
 
-
-
-
-
-  const result = await BookingModel.find({ isBooked: "confirmed" })
+  const result = await BookingModel.find({ 
+    isBooked: "confirmed", 
+    user: userId // Filter by the provided userId
+  })
   .populate("user")
   .populate({
     path: "facility",
     match: { isDeleted: false }, // Only include facilities that are not deleted
   });
 
+  // Filter out bookings where the facility is null (i.e., facility was deleted)
+  const filteredResult = result.filter(booking => booking.facility !== null);
 
-  console.log("this is booking", result);
-  if (!result) {
-    throw new Error("No data Found");
+  console.log("this is booking", filteredResult);
+
+  if (!filteredResult || filteredResult.length === 0) {
+    throw new Error("No data found for this user");
   }
-  return result;
+
+  return filteredResult;
 };
+
+
+
+
+
 const BookingCancle = async (id: string) => {
   //const result1 = await FacilityModel.findOne(_id: id)
   console.log("this is data", id);

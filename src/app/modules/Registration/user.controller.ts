@@ -1,3 +1,4 @@
+import { IUser } from './user.interface';
 import { Request, Response, NextFunction } from "express";
 import { UserServices } from "./user.service";
 import catchAsync from "../../middleware/asynch";

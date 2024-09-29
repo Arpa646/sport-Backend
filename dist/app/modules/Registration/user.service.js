@@ -17,22 +17,21 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const user_model_1 = require("./user.model");
 //creating data into db using rollback and transiction
 const createUserIntoDB = (userData) => __awaiter(void 0, void 0, void 0, function* () {
-    //creating session
-    console.log("ddd", userData);
+    // Creating session
     const session = yield mongoose_1.default.startSession();
     try {
-        //start transaction
+        // Start transaction
         session.startTransaction();
         const newUser = yield user_model_1.UserRegModel.create([userData], { session });
         yield session.commitTransaction();
-        session.endSession();
-        console.log("........", newUser);
         return newUser;
     }
     catch (err) {
         yield session.abortTransaction();
-        yield session.endSession();
         throw new Error(err);
+    }
+    finally {
+        session.endSession();
     }
 });
 const getAllUserFromDB = () => __awaiter(void 0, void 0, void 0, function* () {

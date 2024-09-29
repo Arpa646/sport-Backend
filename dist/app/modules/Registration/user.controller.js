@@ -19,20 +19,19 @@ const response_1 = __importDefault(require("../../utils/response"));
 const http_status_codes_1 = require("http-status-codes");
 // import { userValidationSchema } from "./user.validation"; // Uncomment if you need validation
 const createUser = (0, asynch_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    // Extracting directly from req.body (flat structure)
+    // Directly destructuring the user data from the request body
     const { name, email, password, phone, role, address } = req.body;
-    // Validation before creating the user (if any)
-    // const resultvalidate = userValidationSchema.safeParse({ name, email, password, phone, role, address });
-    // if (!resultvalidate.success) {
-    //   return res.status(400).json({
-    //     success: false,
-    //     message: "Validation failed",
-    //     errors: resultvalidate.error.errors,
-    //   });
-    // }
-    // Creating user in the database
-    const result = yield user_service_1.UserServices.createUserIntoDB({ name, email, password, phone, role, address });
-    // Sending response
+    // Creating a user object that matches the IUser interface
+    const UserData = {
+        name,
+        email,
+        password,
+        phone,
+        role: role || 'user', // Default to 'user' if role is not provided
+        address,
+    };
+    // Creating user into the database
+    const result = yield user_service_1.UserServices.createUserIntoDB(UserData);
     (0, response_1.default)(res, {
         statusCode: http_status_codes_1.StatusCodes.OK,
         success: true,

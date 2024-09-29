@@ -79,25 +79,34 @@ const getAllBookingsFromDB = () => __awaiter(void 0, void 0, void 0, function* (
     console.log("this is ", io);
     const result = yield booking_model_1.default.find({ isBooked: "confirmed" })
         .populate("user")
-        .populate("facility");
-    if (!result) {
-        throw new Error("No data Found");
+        .populate({
+        path: "facility",
+        match: { isDeleted: false }, // Only populate facilities that are not deleted
+    });
+    const filteredResult = result.filter(booking => booking.facility !== null);
+    if (!filteredResult) {
+        throw new Error("No data found");
     }
-    return result;
+    return filteredResult;
 });
 const findBookingsByUserId = (userId) => __awaiter(void 0, void 0, void 0, function* () {
     console.log("this is id", userId);
-    const result = yield booking_model_1.default.find({ isBooked: "confirmed" })
+    const result = yield booking_model_1.default.find({
+        isBooked: "confirmed",
+        user: userId // Filter by the provided userId
+    })
         .populate("user")
         .populate({
         path: "facility",
         match: { isDeleted: false }, // Only include facilities that are not deleted
     });
-    console.log("this is booking", result);
-    if (!result) {
-        throw new Error("No data Found");
+    // Filter out bookings where the facility is null (i.e., facility was deleted)
+    const filteredResult = result.filter(booking => booking.facility !== null);
+    console.log("this is booking", filteredResult);
+    if (!filteredResult || filteredResult.length === 0) {
+        throw new Error("No data found for this user");
     }
-    return result;
+    return filteredResult;
 });
 const BookingCancle = (id) => __awaiter(void 0, void 0, void 0, function* () {
     //const result1 = await FacilityModel.findOne(_id: id)

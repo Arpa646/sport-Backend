@@ -9,7 +9,7 @@ import { bookingController } from "./booking.controller";
 const router = express.Router();
 
 router.post("/", auth(USER_ROLE.user), bookingController.createBooking);
-router.post("/success", bookingController.confirmationController);
+
 
 router.get("/", auth(USER_ROLE.admin), bookingController.getAllBookings);
 
